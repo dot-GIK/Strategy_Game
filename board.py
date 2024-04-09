@@ -21,7 +21,7 @@ class Board:
         self.font = pygame.font.Font(None, 24)
 
 
-    def create_points(self, center: int, radius: int, radius_edg: int) -> tuple[tuple, tuple]:
+    def create_points(self, center: int, radius: int, radius_edg: int, row_col) -> tuple[tuple, tuple]:
         '''
         Создание точек, по которым будут строятся полигоны.
         points - Точки внутреннего полигона
@@ -39,7 +39,7 @@ class Board:
             y_edg = center[1] + radius_edg * math.sin(math.pi/3 * i) + 20
             points.append((x, y))
             points_edg.append((x_edg, y_edg))
-        self.points.append([points, points_edg])
+        self.points.append([points, points_edg, row_col])
     
 
     def map_of_hexagons(self) -> None:
@@ -50,7 +50,7 @@ class Board:
                     continue
                 x = col * self.hex_width * 1
                 y = row * self.hex_height + (col % 2) * self.hex_height / 2
-                self.create_points((x + self.hex_width / 2, y + self.hex_height / 2), self.side_length, self.edging_length)
+                self.create_points((x + self.hex_width / 2, y + self.hex_height / 2), self.side_length, self.edging_length, (row, col))
                 
 
     def random_destruction(self) -> list[tuple]:
