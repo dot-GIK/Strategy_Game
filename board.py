@@ -62,7 +62,7 @@ class Board:
         return [(random.randint(0, self.row_hex), random.randint(0, self.col_hex)) for _ in range(100)]
     
 
-    def draw_hexagon(self, position=None, click=False) -> None:
+    def draw_hexagon(self, position=None, click=False, start=False) -> None:
         '''
         Создание или изменение полигонов.
         Input:
@@ -70,7 +70,7 @@ class Board:
             click - нажатие кнопки мыши
         '''
 
-        if click == True:
+        if click == True or start == True:
             for i in range(len(self.hexagons)):
                 if (self.hexagons[i][0][0]-20 <= position[0] <= self.hexagons[i][0][0]+20) and (self.hexagons[i][0][1]-20 <= position[1] <= self.hexagons[i][0][1]+20) and self.hexagons[i][2] != 'enemy':
                     self.hexagons[i][1] += 1
@@ -93,4 +93,3 @@ class Board:
                 hex = pygame.draw.polygon(self.screen, self.color['grey'], self.points[i][0])
                 pygame.draw.polygon(self.screen, self.color['grey'], self.points[i][1], 1)
                 self.screen.blit(number, (hex[0]+8, hex[1]+4))
-                self.hexagons.append([hex.center, 0, 'none'])
