@@ -1,27 +1,26 @@
 import math
 import pygame
 import random
-
+from global_variables import color
 class Board:
     '''
     Это Данила
     '''
-    def __init__(self, screen: pygame.Surface, color: dict) -> None:
+    def __init__(self, screen: pygame.Surface) -> None:
         self.screen = screen
         self.side_length = 12 # Размер внутреннего шестиугольника
         self.edging_length = 20 # Размер внешнего шестиугольника
         self.row_hex = 15
         self.col_hex = 28
-        self.color = color
         self.hex_width= self.edging_length * math.sqrt(3.5)
         self.hex_height = 2.2 * self.edging_length
-        self.hexagons = [] # Содержит [[Центер каждого полигона: tuple, Очко: int, Кому этот полигон принадлежит={my, none, enemy}] * n]
+        self.hexagons = [] # Содержит [[Центер каждого полигона: tuple, Очко: int, Кому этот полигон принадлежит={me, none, enemy}] * n]
         self.points = [] # Содержит [[Все точки внутреннего полигона: tuple, Все точки внешнего полигона: tuple] * n]
-        self.num = 0
+        self.amount = 0
         self.font = pygame.font.Font(None, 24)
 
 
-    def create_points(self, center: int, radius: int, radius_edg: int, row_col) -> tuple[tuple, tuple]:
+    def create_points(self, center: tuple, radius: int, radius_edg: int, row_col) -> tuple[tuple, tuple]:
         '''
         Создание точек, по которым будут строятся полигоны.
         points - Точки внутреннего полигона
@@ -48,6 +47,7 @@ class Board:
             for col in range(self.col_hex):
                 if (row, col) in destroyed_polygons:
                     continue
+                self.amount += 1
                 x = col * self.hex_width * 1
                 y = row * self.hex_height + (col % 2) * self.hex_height / 2
                 self.create_points((x + self.hex_width / 2, y + self.hex_height / 2), self.side_length, self.edging_length, (row, col))
@@ -62,34 +62,38 @@ class Board:
         return [(random.randint(0, self.row_hex), random.randint(0, self.col_hex)) for _ in range(100)]
     
 
-    def draw_hexagon(self, position=None, click=False, start=False) -> None:
+    def draw_hexagon(self, who: str, position=None, click=False, start=False) -> None:
         '''
         Создание или изменение полигонов.
         Input:
             position - позиция(x,y) нажатие мыши
             click - нажатие кнопки мыши
+            start - создание персонажей в начале игры
         '''
 
-        if click == True or start == True:
+        if click or start:
             for i in range(len(self.hexagons)):
-                if (self.hexagons[i][0][0]-20 <= position[0] <= self.hexagons[i][0][0]+20) and (self.hexagons[i][0][1]-20 <= position[1] <= self.hexagons[i][0][1]+20) and self.hexagons[i][2] != 'enemy':
+                if (self.hexagons[i][0][0]-20 <= position[0] <= self.hexagons[i][0][0]+20) and (self.hexagons[i][0][1]-20 <= position[1] <= self.hexagons[i][0][1]+20):
                     self.hexagons[i][1] += 1
 
-                    number = self.font.render(f'{self.hexagons[i][1]}', 1, (0,0,0), None)
-                    hex = pygame.draw.polygon(self.screen, self.color['blue'], self.points[i][0])
-                    pygame.draw.polygon(self.screen, self.color['blue'], self.points[i][1], 1)
+                    number = self.font.render(f'{self.hexagons[i][1]}', 1, color['black'], None)
+                    hex = pygame.draw.polygon(self.screen, color['blue'], self.points[i][0])
+                    pygame.draw.polygon(self.screen, color['blue'], self.points[i][1], 1)
 
                     if self.hexagons[i][1] >= 10: self.screen.blit(number, (hex[0]+4, hex[1]+4))
                     else: self.screen.blit(number, (hex[0]+8, hex[1]+4))
-                    self.hexagons[i][2] = 'my'
+                    self.hexagons[i][2] = who
                     break
-        else:
-            '''
-            Создание карты в начале игры.
-            '''
 
-            for i in range(len(self.points)):
-                number = self.font.render('0', 1, (0,0,0), None)
-                hex = pygame.draw.polygon(self.screen, self.color['grey'], self.points[i][0])
-                pygame.draw.polygon(self.screen, self.color['grey'], self.points[i][1], 1)
-                self.screen.blit(number, (hex[0]+8, hex[1]+4))
+                
+    def create_map(self):
+        '''
+        Создание карты в начале игры.
+        '''
+
+        for i in range(len(self.points)):
+            number = self.font.render('0', 1, color['black'], None)
+            hex = pygame.draw.polygon(self.screen, color['grey'], self.points[i][0])
+            pygame.draw.polygon(self.screen, color['grey'], self.points[i][1], 1)
+            self.screen.blit(number, (hex[0]+8, hex[1]+4))
+            self.hexagons.append([hex.center, 0, 'none'])   
