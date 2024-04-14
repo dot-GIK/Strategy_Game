@@ -2,13 +2,14 @@ from math import *
 import pygame
 import random
 from board import Board
-from global_variables import color, characters
+from global_variables import color, characters, phrases
 
-class Person:
+class Person(Board):
     '''
     Это Макса
     '''
-    def __init__(self, screen: pygame.Surface) -> None:
+    def __init__(self, screen: pygame.Surface, width: int, height: int) -> None:
+        super().__init__(screen, width, height)
         '''
         board - карта, на которой все происходит
         phase - всего есть три фазы:
@@ -17,11 +18,14 @@ class Person:
             3) Атака или распространение
         '''
         
-        self.board = Board(screen)
+        self.board = Board(screen, width, height)
+        self.board.create_map() # Создание поля 
         self.phase = 0 
+
 
     def advance_phase(self) -> None:
         self.phase += 1
+        self.board.create_panel(5)
         print('Phase:', self.phase)
 
     def execute_phase(self, who: str) -> None:
@@ -80,8 +84,6 @@ class Person:
         '''
 
         # Генерируем случайный индекс полигона
-        self.board.map_of_hexagons()
-        self.board.create_map()
         random_index = random.randint(0, self.board.amount)
         # Получаем координаты центра захватываемого полигона
         position = self.board.hexagons[random_index][0]
