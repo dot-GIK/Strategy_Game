@@ -20,8 +20,11 @@ class Board:
         self.height = height
         self.side_length = 12 # Размер внутреннего шестиугольника
         self.edging_length = 20 # Размер внешнего шестиугольника
-        self.row_hex = 15
-        self.col_hex = 28
+
+        self.row_hex = (height // 40) - (((height // 35) // 10) + 1) * 2
+        self.col_hex = (width // 30) - (((width // 30) // 10) + 1) * 2
+        print(self.row_hex)
+
         self.hex_width= self.edging_length * math.sqrt(3.5)
         self.hex_height = 2.2 * self.edging_length
         self.hexagons = [] # Содержит [[Центер каждого полигона: tuple, Очко: int, Кому этот полигон принадлежит={me, none, enemy}] * n]
@@ -53,6 +56,10 @@ class Board:
     
 
     def map_of_hexagons(self) -> None:
+        '''
+        Создание точек, по которым будут строятся полигоны.
+        '''
+
         destroyed_polygons = self.random_destruction()
         for row in range(self.row_hex):
             for col in range(self.col_hex):
@@ -88,11 +95,12 @@ class Board:
                     self.hexagons[i][1] += 1
 
                     number = self.font.render(f'{self.hexagons[i][1]}', 1, color['black'], None)
-                    hex = pygame.draw.polygon(self.screen, color['blue'], self.points[i][0])
-                    pygame.draw.polygon(self.screen, color['blue'], self.points[i][1], 1)
+                    hex = pygame.draw.polygon(self.surf_map, color['blue'], self.points[i][0])
+                    pygame.draw.polygon(self.surf_map, color['blue'], self.points[i][1], 1)
 
-                    if self.hexagons[i][1] >= 10: self.screen.blit(number, (hex[0]+4, hex[1]+4))
-                    else: self.screen.blit(number, (hex[0]+8, hex[1]+4))
+                    if self.hexagons[i][1] >= 10: self.surf_map.blit(number, (hex[0]+4, hex[1]+4))
+                    else: self.surf_map.blit(number, (hex[0]+8, hex[1]+4))
+                    self.screen.blit(self.surf_map, (0, 0))
                     self.hexagons[i][2] = who
                     break
 
@@ -106,24 +114,29 @@ class Board:
         self.map_of_hexagons()
 
         # Создание карты
+        self.surf_map = pygame.Surface((self.width, self.height-80)) # Создание поверхности для карты
+
         for i in range(len(self.points)):
             number = self.font.render('0', 1, color['black'], None)
-            hex = pygame.draw.polygon(self.screen, color['grey'], self.points[i][0])
-            pygame.draw.polygon(self.screen, color['grey'], self.points[i][1], 1)
-            self.screen.blit(number, (hex[0]+8, hex[1]+4))
-            self.hexagons.append([hex.center, 0, 'none'])   
+            hex = pygame.draw.polygon(self.surf_map, color['grey'], self.points[i][0])
+            pygame.draw.polygon(self.surf_map, color['grey'], self.points[i][1], 1)
+
+            self.surf_map.blit(number, (hex[0]+8, hex[1]+4))
+            self.screen.blit(self.surf_map, (0, 0))
+            self.hexagons.append([hex.center, 0, 'none']) 
+
 
         # Создание панели
         self.width_rect = 80 # Ширина панели
         self.width_small_rect = 10 # Ширина прямоугольников
-        self.surf_panel = pygame.Surface((self.width, self.width_rect)) # Создание поверхности для панели
+        self.surf_panel = pygame.Surface((self.width, self.height)) # Создание поверхности для панели
 
         text = self.font_for_panel.render(phrases[1], 1, color['white'], None)
         pygame.draw.rect(self.surf_panel, color['red'], (0, 0, self.width, self.width_small_rect))
         pygame.draw.rect(self.surf_panel, color['blue'], (0, (self.width_rect - self.width_small_rect), self.width, self.width_small_rect))
 
         self.screen.blit(self.surf_panel, (0, self.height - self.width_rect))
-        self.screen.blit(text, ((self.width // 2) - 140, self.height - (self.height // 14)))
+        self.screen.blit(text, ((self.width // 2) - 145, self.height - 55))
 
     def create_panel(self, phase: int) -> None:
         '''
@@ -134,6 +147,8 @@ class Board:
         text = self.font_for_panel.render(phrases[phase], 1, color['white'], None)
         self.screen.blit(self.surf_panel, (0, self.height - self.width_rect))
 
-        if phase == 3: self.screen.blit(text, ((self.width // 2) - 110, self.height - (self.height // 14)))
-        elif phase == 2: self.screen.blit(text, ((self.width // 2) - 150, self.height - (self.height // 14)))
-        else: self.screen.blit(text, ((self.width // 2) - 130, self.height - (self.height // 14)))
+        # shift - Сдвиг текста.
+        if phase in (1, 2): shift = 145
+        elif phase == 3: shift = 110
+        else: shift = 140
+        self.screen.blit(text, ((self.width // 2) - shift, self.height - 55))

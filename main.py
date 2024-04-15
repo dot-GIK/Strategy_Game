@@ -4,7 +4,7 @@ from person import Person
 from global_variables import characters
 pygame.init()
 
-width, height = 1080, 800
+width, height = 1080, 1000
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Game")
 
@@ -26,7 +26,6 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             player.advance_phase()
             player.execute_phase(characters[1])
-
             
     pygame.display.flip()
     clock.tick(FPS)

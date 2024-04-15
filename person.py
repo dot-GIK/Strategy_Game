@@ -25,7 +25,6 @@ class Person(Board):
 
     def advance_phase(self) -> None:
         self.phase += 1
-        self.board.create_panel(5)
         print('Phase:', self.phase)
 
     def execute_phase(self, who: str) -> None:
