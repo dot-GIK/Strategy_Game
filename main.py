@@ -1,5 +1,4 @@
 import pygame
-from board import Board
 from person import Person
 from global_variables import characters
 pygame.init()
@@ -25,7 +24,13 @@ while running:
             exit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
             player.advance_phase()
-            player.execute_phase(characters[1])
+            if player.phase==3:
+                for _ in range(player.points):
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        player.execute_phase(characters[1])
+            else:
+                player.execute_phase(characters[1])
+
             
     pygame.display.flip()
     clock.tick(FPS)

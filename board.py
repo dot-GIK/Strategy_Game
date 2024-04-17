@@ -1,7 +1,7 @@
 import math
 import pygame
 import random
-from global_variables import color, phrases
+from global_variables import color, phrases, characters
 
 class Board:
     '''
@@ -23,7 +23,6 @@ class Board:
 
         self.row_hex = (height // 40) - (((height // 35) // 10) + 1) * 2
         self.col_hex = (width // 30) - (((width // 30) // 10) + 1) * 2
-        print(self.row_hex)
 
         self.hex_width= self.edging_length * math.sqrt(3.5)
         self.hex_height = 2.2 * self.edging_length
@@ -34,7 +33,7 @@ class Board:
         self.font_for_panel = pygame.font.Font('font/minecraft-ten-font-cyrillic.ttf', 18) # Шрифт для текста
 
 
-    def create_points(self, center: tuple, radius: int, radius_edg: int, row_col) -> tuple[tuple, tuple]:
+    def create_points(self, center: tuple, radius: int, radius_edg: int, empty: False) -> tuple[tuple, tuple]:
         '''
         Создание точек, по которым будут строятся полигоны.
         points - Точки внутреннего полигона
@@ -52,7 +51,7 @@ class Board:
             y_edg = center[1] + radius_edg * math.sin(math.pi/3 * i) + 20
             points.append((x, y))
             points_edg.append((x_edg, y_edg))
-        self.points.append([points, points_edg, row_col])
+        self.points.append([points, points_edg, empty])
     
 
     def map_of_hexagons(self) -> None:
@@ -63,12 +62,13 @@ class Board:
         destroyed_polygons = self.random_destruction()
         for row in range(self.row_hex):
             for col in range(self.col_hex):
+                empty = False
                 if (row, col) in destroyed_polygons:
-                    continue
+                    empty = True
                 self.amount += 1
                 x = col * self.hex_width * 1
                 y = row * self.hex_height + (col % 2) * self.hex_height / 2
-                self.create_points((x + self.hex_width / 2, y + self.hex_height / 2), self.side_length, self.edging_length, (row, col))
+                self.create_points((x + self.hex_width / 2, y + self.hex_height / 2), self.side_length, self.edging_length, empty)
                 
 
     def random_destruction(self) -> list[tuple]:
@@ -91,7 +91,8 @@ class Board:
 
         if click or start:
             for i in range(len(self.hexagons)):
-                if (self.hexagons[i][0][0]-20 <= position[0] <= self.hexagons[i][0][0]+20) and (self.hexagons[i][0][1]-20 <= position[1] <= self.hexagons[i][0][1]+20):
+                if (self.hexagons[i][0][0]-20 <= position[0] <= self.hexagons[i][0][0]+20) and (self.hexagons[i][0][1]-20 <= position[1] <= self.hexagons[i][0][1]+20 and self.points[i][2] == False):
+                    print(f'Полигон: {i}')
                     self.hexagons[i][1] += 1
 
                     number = self.font.render(f'{self.hexagons[i][1]}', 1, color['black'], None)
@@ -117,13 +118,16 @@ class Board:
         self.surf_map = pygame.Surface((self.width, self.height-80)) # Создание поверхности для карты
 
         for i in range(len(self.points)):
+            if self.points[i][2]:
+                self.hexagons.append([(0, 0), None, 'empty'])  
+                continue
             number = self.font.render('0', 1, color['black'], None)
             hex = pygame.draw.polygon(self.surf_map, color['grey'], self.points[i][0])
             pygame.draw.polygon(self.surf_map, color['grey'], self.points[i][1], 1)
 
             self.surf_map.blit(number, (hex[0]+8, hex[1]+4))
             self.screen.blit(self.surf_map, (0, 0))
-            self.hexagons.append([hex.center, 0, 'none']) 
+            self.hexagons.append([hex.center, 0, 'none'])  
 
 
         # Создание панели
