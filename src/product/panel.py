@@ -1,6 +1,6 @@
 import os
 import pygame
-from product import color, phrases
+from .global_variables import color, phrases
 
 class Panel:
     def __init__(self, screen: pygame.Surface, width: int, height: int, surf_panel: pygame.Surface) -> None:

@@ -1,5 +1,5 @@
 import pygame
-from product import color, whose_color
+from .global_variables import color, whose_color
 
 
 class Cell:

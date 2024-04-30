@@ -1,7 +1,8 @@
 from math import *
 import pygame
 import random
-from product import Board, color, phrases
+from .global_variables import color, phrases
+from .board import Board
 
 
 class Person:

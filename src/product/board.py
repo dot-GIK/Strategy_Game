@@ -1,7 +1,9 @@
 import math
 import pygame
 import random
-from product import color, Cell, Panel
+from .global_variables import color
+from .cell import Cell
+from .panel import Panel
 
 class Board:
     '''
@@ -102,57 +104,124 @@ class Board:
         Рандомное удаление полигонов на карте.
         '''
 
-        destroyed_hexagons = [(random.randint(1, self.row_hex-2), random.randint(1, self.col_hex-2)) for _ in range(200)]
+        destroyed_hexagons = [(random.randint(0, self.row_hex-1), random.randint(0, self.col_hex-1)) for _ in range(150)]
         for row, col in destroyed_hexagons:
             self.hexagons[row][col] = False
-    
 
-    def creating_neighbors(self): 
+
+    def creating_neighbors(self):
         for row in range(self.row_hex):
             for col in range(self.col_hex):
                 count = 0
                 if self.hexagons[row][col] == False: continue
-
-                if row != 0:
-                    if col % 2 != 0:
+                if (col+1) % 2 != 0:
+                    if 0 < row < (self.row_hex-1):
                         if col != 0:
+                            if self.hexagons[row][col-1] != False: 
+                                self.hexagons[row][col].neighbors.append(self.hexagons[row][col-1])
+                                count += 1    
                             if self.hexagons[row-1][col-1] != False: 
-                                self.hexagons[row][col].neighbors.append(self.hexagons[row-1][col-1]) 
+                                self.hexagons[row][col].neighbors.append(self.hexagons[row-1][col-1])
+                                count += 1 
+                        if col != (self.col_hex-1):
+                            if self.hexagons[row][col+1] != False: 
+                                self.hexagons[row][col].neighbors.append(self.hexagons[row][col+1])
                                 count += 1
-                        if col != self.col_hex-1:
                             if self.hexagons[row-1][col+1] != False: 
-                                self.hexagons[row][col].neighbors.append(self.hexagons[row-1][col+1]) 
-                                count += 1
-                    if self.hexagons[row-1][col] != False: 
-                        self.hexagons[row][col].neighbors.append(self.hexagons[row-1][col]) 
-                        count += 1
-
-                if row != self.row_hex-1:
-                    if col % 2 == 0:
+                                self.hexagons[row][col].neighbors.append(self.hexagons[row-1][col+1])
+                                count += 1  
+                        if self.hexagons[row-1][col] != False: 
+                            self.hexagons[row][col].neighbors.append(self.hexagons[row-1][col])
+                            count += 1                       
+                        if self.hexagons[row+1][col] != False: 
+                            self.hexagons[row][col].neighbors.append(self.hexagons[row+1][col])
+                            count += 1        
+                    elif row == 0:
                         if col != 0:
+                            if self.hexagons[row][col-1] != False: 
+                                self.hexagons[row][col].neighbors.append(self.hexagons[row][col-1])
+                                count += 1  
+                        if col != (self.col_hex-1):
+                            if self.hexagons[row][col+1] != False: 
+                                self.hexagons[row][col].neighbors.append(self.hexagons[row][col+1])
+                                count += 1 
+                        if self.hexagons[row+1][col] != False: 
+                            self.hexagons[row][col].neighbors.append(self.hexagons[row+1][col])
+                            count += 1 
+                    else:
+                        if col != 0:
+                            if self.hexagons[row][col-1] != False: 
+                                self.hexagons[row][col].neighbors.append(self.hexagons[row][col-1])
+                                count += 1    
                             if self.hexagons[row-1][col-1] != False: 
-                                self.hexagons[row][col].neighbors.append(self.hexagons[row+1][col-1]) 
+                                self.hexagons[row][col].neighbors.append(self.hexagons[row-1][col-1])
+                                count += 1 
+                        if col != (self.col_hex-1):
+                            if self.hexagons[row][col+1] != False: 
+                                self.hexagons[row][col].neighbors.append(self.hexagons[row][col+1])
                                 count += 1
-                        if col != self.col_hex-1:
                             if self.hexagons[row-1][col+1] != False: 
-                                self.hexagons[row][col].neighbors.append(self.hexagons[row+1][col+1]) 
+                                self.hexagons[row][col].neighbors.append(self.hexagons[row-1][col+1])
+                                count += 1  
+                        if self.hexagons[row-1][col] != False: 
+                            self.hexagons[row][col].neighbors.append(self.hexagons[row-1][col])
+                            count += 1   
+                elif (col+1) % 2 == 0:
+                    if 0 < row < (self.row_hex-1):
+                        if col != 0:
+                            if self.hexagons[row][col-1] != False: 
+                                self.hexagons[row][col].neighbors.append(self.hexagons[row][col-1])
+                                count += 1    
+                            if self.hexagons[row+1][col-1] != False: 
+                                self.hexagons[row][col].neighbors.append(self.hexagons[row+1][col-1])
+                                count += 1 
+                        if col != (self.col_hex-1):
+                            if self.hexagons[row][col+1] != False: 
+                                self.hexagons[row][col].neighbors.append(self.hexagons[row][col+1])
                                 count += 1
-                    if self.hexagons[row+1][col] != False: 
-                        self.hexagons[row][col].neighbors.append(self.hexagons[row+1][col])
-                        count += 1
+                            if self.hexagons[row+1][col+1] != False: 
+                                self.hexagons[row][col].neighbors.append(self.hexagons[row+1][col+1])
+                                count += 1  
+                        if self.hexagons[row-1][col] != False: 
+                            self.hexagons[row][col].neighbors.append(self.hexagons[row-1][col])
+                            count += 1                       
+                        if self.hexagons[row+1][col] != False: 
+                            self.hexagons[row][col].neighbors.append(self.hexagons[row+1][col])
+                            count += 1    
+                    elif row == 0:
+                        if col != 0:
+                            if self.hexagons[row][col-1] != False: 
+                                self.hexagons[row][col].neighbors.append(self.hexagons[row][col-1])
+                                count += 1  
+                            if self.hexagons[row+1][col-1] != False: 
+                                self.hexagons[row][col].neighbors.append(self.hexagons[row+1][col-1])
+                                count += 1  
+                        if col != (self.col_hex-1):
+                            if self.hexagons[row][col+1] != False: 
+                                self.hexagons[row][col].neighbors.append(self.hexagons[row][col+1])
+                                count += 1 
+                            if self.hexagons[row+1][col+1] != False: 
+                                self.hexagons[row][col].neighbors.append(self.hexagons[row+1][col+1])
+                                count += 1 
+                        if self.hexagons[row+1][col] != False: 
+                            self.hexagons[row][col].neighbors.append(self.hexagons[row+1][col])
+                            count += 1 
+                    else:
+                        if col != 0:
+                            if self.hexagons[row][col-1] != False: 
+                                self.hexagons[row][col].neighbors.append(self.hexagons[row][col-1])
+                                count += 1    
+                        if col != (self.col_hex-1):
+                            if self.hexagons[row][col+1] != False: 
+                                self.hexagons[row][col].neighbors.append(self.hexagons[row][col+1])
+                                count += 1 
+                        if self.hexagons[row-1][col] != False: 
+                            self.hexagons[row][col].neighbors.append(self.hexagons[row-1][col])
+                            count += 1  
+                if 0 <= count <= 2: 
+                    self.hexagons[row][col] = False 
+                print(row, ' ', col, '=', count)
 
-                if col != self.col_hex-1:
-                    if self.hexagons[row][col+1] != False: 
-                        self.hexagons[row][col].neighbors.append(self.hexagons[row][col+1])
-                        count += 1
-
-                if col != 0:
-                    if self.hexagons[row][col-1] != False: 
-                        self.hexagons[row][col].neighbors.append(self.hexagons[row][col-1])
-                        count += 1
-
-                if 0 <= count <= 1: 
-                    self.hexagons[row][col] = False
 
     def draw_hexagon(self, who_owns: str, position: tuple[int, int]) -> None:
         '''
