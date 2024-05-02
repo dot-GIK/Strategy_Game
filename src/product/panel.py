@@ -17,7 +17,7 @@ class Panel:
         self.surf_panel = surf_panel
         self.width_rect = 80
         self.width_small_rect = 10 
-        self.font_for_panel = pygame.font.Font(os.path.abspath('src\\font\\minecraft-ten-font-cyrillic.ttf'), 18)
+        self.font_for_panel = pygame.font.Font(os.path.abspath('src/font/minecraft-ten-font-cyrillic.ttf'), 18)
 
     def draw_panel(self, phase: int) -> None:
         '''

@@ -4,6 +4,7 @@ import random
 from .global_variables import color
 from .cell import Cell
 from .panel import Panel
+from .button import Button
 
 class Board:
     '''
@@ -52,8 +53,10 @@ class Board:
                 cell = Cell(surf_map=surf_map, screen=screen, who_owns='none', num_of_points=0, position_in_matrix=(row, col))
                 self.hexagons[row].append(cell)      
 
-        self.panel = Panel(screen=screen, width=width, height=height, surf_panel=surf_panel)  
-
+        self.panel = Panel(screen=screen, width=width, 
+                           height=height, surf_panel=surf_panel)  
+        self.button = Button(screen=screen, surf_panel=surf_panel, 
+                             width=width, height=height)
 
 
     def creating_hexagon_points(self, center: tuple, radius: int, radius_edg: int) -> tuple[tuple, tuple]:
@@ -260,3 +263,6 @@ class Board:
 
         # Создание панели
         self.panel.draw_panel(1)
+        self.button.draw_button(1)
+       
+    
