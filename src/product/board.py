@@ -107,7 +107,7 @@ class Board:
         Рандомное удаление полигонов на карте.
         '''
 
-        destroyed_hexagons = [(random.randint(0, self.row_hex-1), random.randint(0, self.col_hex-1)) for _ in range(150)]
+        destroyed_hexagons = [(random.randint(0, self.row_hex-1), random.randint(0, self.col_hex-1)) for _ in range(100)]
         for row, col in destroyed_hexagons:
             self.hexagons[row][col] = False
 
