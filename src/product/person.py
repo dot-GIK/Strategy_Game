@@ -6,7 +6,6 @@ from .panel import Panel
 from .button import Button
 
 
-
 class Person():
     '''
     Это Макса
@@ -24,33 +23,35 @@ class Person():
         self.board = Board(screen, width, height)
         self.board.creating_map()  # Создание поля
         self.phase = 0
-        self.but_x = width-100
-        self.but_y = height-40
+        self.but_x = width-100 #центр кнопки по оси абсцисс
+        self.but_y = height-40 #центр по оси ординат
 
-    def advance_phase(self) -> None:
+    def advance_phase(self) -> None: #фактическое переключение фазы
         self.phase += 1
         print('Phase:', self.phase)
 
-    def execute_phase(self, who: str) -> None:
+    def execute_phase(self, who: str) -> None: #Реализация фазы
 
         if self.phase == 1:  # Выбор гекса
+            self.hex_x=0
+            self.hex_y=0
             print('Выделите гекс')
-            clicked_position = pygame.mouse.get_pos()
-            self.board.panel.draw_panel(2)
-            self.choose_hex(who, clicked_position=pygame.mouse.get_pos())
-            self.board.button.draw_button(1)
-            distance = sqrt(abs(self.but_x - clicked_position[0]) ** 2 + abs(self.but_y - clicked_position[1]) ** 2)
-            if distance <= 32:
-                self.phase_gain_influence_points()
+            clicked_position = pygame.mouse.get_pos() #Считывание позиции мыши
+            self.board.panel.draw_panel(2) #Рисуем панель
+            self.choose_hex(who, clicked_position=pygame.mouse.get_pos()) #Функция выбора Гекса
+            self.board.button.draw_button(1) #Рисуем кнопку для переключения фазы
+            distance = sqrt(abs(self.but_x - clicked_position[0]) ** 2 + abs(self.but_y - clicked_position[1]) ** 2) #Дистанция от мыши до кнопки
+            if distance <= 32: #Если кликнули по кнопке, то переходим к распределению очков
+                self.phase_gain_influence_points() #Функция начисления очков
                 self.phase = 2
                 self.board.panel.draw_panel(2)
-                self.board.button.draw_button(4, num_of_points=self.points)
+                self.board.button.draw_button(4, num_of_points=self.points) #Рисуем кнопку с очками
 
         if self.phase == 2:  # Атака
             self.board.panel.draw_panel(4)
             print('Атакуйте')
             clicked_position = pygame.mouse.get_pos()
-            self.phase_attack(who, clicked_position)
+            self.phase_attack(who, clicked_position) #ФАЗА АТАААКИ ТИТАНОВ
             distance=sqrt(abs(self.but_x - clicked_position[0]) ** 2 + abs(self.but_y- clicked_position[1]) ** 2)
             if distance>32:
                 self.phase = 0
@@ -78,17 +79,22 @@ class Person():
             if self.points==0:
                 self.phase = 0
                 self.board.panel.draw_panel(1)
-    def choose_hex(self, who: str, clicked_position=None) -> None:
+    def choose_hex(self, who: str, clicked_position=None) -> None: #ФАЗА ВЫБОРА ГЕКСАГОНА
         for row in range(self.board.row_hex):
             for col in range(self.board.col_hex):
                 if self.board.hexagons[row][col] == False: continue
                 else:
-                    hex_center = self.board.hexagons[row][col].hexagon_center
+                    hex_center = self.board.hexagons[row][col].hexagon_center #Считаем центр гекса
                     if self.board.hexagons[row][col].who_owns == 'player1' and sqrt(abs(hex_center[0] - clicked_position[0]) ** 2 + abs(
                             hex_center[1] - clicked_position[1]) ** 2) <= 20:
                         self.hex_y = hex_center[1]
                         self.hex_x = hex_center[0]
                         print('Выделен:', self.hex_x, self.hex_y)
+                        break
+        if self.hex_x==0 and self.hex_y==0:
+                self.phase = 0
+                self.board.panel.draw_panel(1)
+                self.board.button.draw_button(1)
 
     def phase_attack(self, who: str, clicked_position=None) -> None:
         '''
