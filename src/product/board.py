@@ -100,7 +100,6 @@ class Board:
 
                 self.hexagons[row][col].hexagon_center = (hexagon_center[0]-4, hexagon_center[1]-7) 
                 self.hexagons[row][col].amt_of_points = [points, points_edg]
-                
 
     def random_destruction(self):
         '''
@@ -223,10 +222,9 @@ class Board:
                             count += 1  
                 if 0 <= count <= 2: 
                     self.hexagons[row][col] = False 
-                print(row, ' ', col, '=', count)
 
 
-    def draw_hexagon(self, who_owns: str, position: tuple[int, int]) -> None:
+    def draw_hexagon(self, who_owns: str, position: tuple[int, int], sel_hex: bool=False) -> None:
         '''
         Создание или изменение полигонов.
         Input:
@@ -237,9 +235,8 @@ class Board:
             for col in range(self.col_hex):
                 if self.hexagons[row][col] == False: continue
                 if (self.hexagons[row][col].hexagon_center[0]-20 <= position[0] <= self.hexagons[row][col].hexagon_center[0]+20) and (self.hexagons[row][col].hexagon_center[1]-20 <= position[1] <= self.hexagons[row][col].hexagon_center[1]+20):
-                    print(len(self.hexagons[row][col].neighbors))
-                    self.hexagons[row][col].draw_hexagon(who_owns)
-                    print(f'Полигон: {row}, {col}')
+                    self.hexagons[row][col].draw_hexagon(who_owns=who_owns, sel_hex=sel_hex)
+
 
                 
     def creating_map(self) -> None:
