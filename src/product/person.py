@@ -5,7 +5,6 @@ from .board import Board
 from src.product import global_variables
 
 
-
 class Person():
     '''
     Это Макса
@@ -57,6 +56,7 @@ class Person():
                             hex_center[1] - clicked_position[1]) ** 2) <= 20 and self.board.hexagons[row][col].num_of_points >= 2:
                         self.hex_y = hex_center[1]
                         self.hex_x = hex_center[0]
+                        self.player_choose = self.board.hexagons[row][col]
                         global_variables.phase = 2
                         break
         if self.hex_x==0 and self.hex_y==0:
@@ -66,26 +66,94 @@ class Person():
         '''
         Фаза атаки: атакуем и захватываем полигон, на который кликнули мышью, если у нашего полигона больше одного очка.
         '''
-        for row in range(self.board.row_hex):
-            for col in range(self.board.col_hex):
-                if self.board.hexagons[row][col] == False: continue
                 # Вычисляем расстояние от центра текущего полигона до позиции, на которую кликнули мышью
-                distance = sqrt(abs(self.hex_x - clicked_position[0]) ** 2 + abs(self.hex_y - clicked_position[1]) ** 2)
-                if distance < 65 and self.hex_x == self.board.hexagons[row][col].hexagon_center[0] and self.hex_y == self.board.hexagons[row][col].hexagon_center[1]:
-                    # Проверяем, принадлежит ли полигон текущему игроку и имеет ли он больше одного очка!!!!
-                    if self.board.hexagons[row][col].who_owns == who and self.board.hexagons[row][col].num_of_points >= 2:
-                        me_hex = (self.hex_x, self.hex_y)
-                        first_points=self.board.hexagons[row][col].num_of_points
-                        self.board.hexagons[row][col].num_of_points = 1
-                        for row in range(self.board.row_hex):
-                            for col in range(self.board.col_hex):
-                                if self.board.hexagons[row][col] == False: continue
-                                if sqrt(abs(self.board.hexagons[row][col].hexagon_center[0] - clicked_position[0]) ** 2 + abs(self.board.hexagons[row][col].hexagon_center[1] - clicked_position[1]) ** 2) <= 20 and (self.board.hexagons[row][col].who_owns == 'none' or self.board.hexagons[row][col].who_owns == 'player1'):
-                                    self.board.hexagons[row][col].num_of_points += first_points-1
-                                    if who == 'player1': self.my_hex.append(self.board.hexagons[row][col])
-                        who_owns = who
-                        self.board.draw_hexagon(who_owns, position=clicked_position)
-                        self.board.draw_hexagon(who_owns, position=me_hex)
+        distance = sqrt(abs(self.hex_x - clicked_position[0]) ** 2 + abs(self.hex_y - clicked_position[1]) ** 2)
+        if distance < 65:
+            # Проверяем, принадлежит ли полигон текущему игроку и имеет ли он больше одного очка!!!!
+                me_hex = (self.hex_x, self.hex_y)
+                for row in range(self.board.row_hex):
+                    for col in range(self.board.col_hex):
+                        if self.board.hexagons[row][col] == False: continue
+                        distance2 = sqrt(abs(self.board.hexagons[row][col].hexagon_center[0] - clicked_position[0]) ** 2 + abs(self.board.hexagons[row][col].hexagon_center[1] - clicked_position[1]) ** 2) <= 20
+                        if (self.board.hexagons[row][col].who_owns=='player1') and distance2 and self.board.hexagons[row][col]!=self.player_choose:
+                            print("По своему кликнул")
+                            self.board.hexagons[row][col].num_of_points += self.player_choose.num_of_points - 2
+                            self.player_choose.num_of_points = 1
+                            self.board.hexagons[row][col].who_owns='player1'
+                            self.board.draw_hexagon(who, position=clicked_position)
+                            self.board.draw_hexagon(who, position=me_hex)
+
+                        if distance2 and (self.board.hexagons[row][col].who_owns == 'none' or self.board.hexagons[row][col].num_of_points == 0):
+                            print("Пустой")
+                            self.board.hexagons[row][col].num_of_points += self.player_choose.num_of_points - 1
+                            self.player_choose.num_of_points = 1
+                            self.board.hexagons[row][col].who_owns = 'player1'
+                            if who == 'player1': self.my_hex.append(self.board.hexagons[row][col])
+                            self.board.draw_hexagon(who, position=clicked_position)
+                            self.board.draw_hexagon(who, position=me_hex)
+
+                        #БОЙ С БОТОМ
+                        if distance2 and (self.board.hexagons[row][col].num_of_points>0 or (self.board.hexagons[row][col].who_owns != 'player1' and self.board.hexagons[row][col].who_owns != 'none')) and self.board.hexagons[row][col].who_owns != 'player1':
+                            bot = self.board.hexagons[row][col]
+                            print("Рубеж Пройден")
+
+                            if (self.player_choose.num_of_points - bot.num_of_points)>=2:
+                                print("Больше 2х очков")
+                                bot.num_of_points=self.player_choose.num_of_points - bot.num_of_points
+                                self.player_choose.num_of_points = 1
+                                bot.who_owns='player1'
+                                self.my_hex.append(bot)
+                                self.board.draw_hexagon('player1', position=clicked_position, sel_hex=False)
+                                self.board.draw_hexagon('player1', position=self.player_choose.hexagon_center, sel_hex=False)
+                            if (self.player_choose.num_of_points - bot.num_of_points)==1:
+                                print("+1 очко")
+                                if random.choices([True, False], weights=[75, 25])[0]:
+                                    bot.num_of_points=1
+                                    self.player_choose.num_of_points = 1
+                                    bot.who_owns='player1'
+                                    self.my_hex.append(bot)
+                                    self.board.draw_hexagon('player1', position=clicked_position, sel_hex=False)
+                                    self.board.draw_hexagon('player1', position=self.player_choose.hexagon_center, sel_hex=False)
+                                else:
+                                    self.player_choose.num_of_points = 1
+                                    self.board.draw_hexagon('player1', position=self.player_choose.hexagon_center, sel_hex=False)
+                            if (self.player_choose.num_of_points - bot.num_of_points)==0:
+                                print("0 очков")
+                                if random.choices([True, False], weights=[50, 50])[0]:
+                                    bot.num_of_points=1
+                                    self.player_choose.num_of_points = 1
+                                    bot.who_owns='player1'
+                                    self.my_hex.append(bot)
+                                    self.board.draw_hexagon('player1', position=clicked_position, sel_hex=False)
+                                    self.board.draw_hexagon('player1', position=self.player_choose.hexagon_center, sel_hex=False)
+                                else:
+                                    self.player_choose.num_of_points = 1
+                                    self.board.draw_hexagon('player1', position=self.player_choose.hexagon_center, sel_hex=False)
+                            if (self.player_choose.num_of_points - bot.num_of_points)==-1:
+                                print("-1 очко")
+                                if random.choices([True, False], weights=[25, 75])[0]:
+                                    bot.num_of_points=1
+                                    self.player_choose.num_of_points = 1
+                                    bot.who_owns='player1'
+                                    self.my_hex.append(bot)
+                                    self.board.draw_hexagon('player1', position=clicked_position, sel_hex=False)
+                                    self.board.draw_hexagon('player1', position=self.player_choose.hexagon_center, sel_hex=False)
+                                else:
+                                    self.player_choose.num_of_points = 1
+                                    self.board.draw_hexagon('player1', position=self.player_choose.hexagon_center, sel_hex=False)
+                            if (self.player_choose.num_of_points - bot.num_of_points)<=-2:
+                                print("-2 очка")
+                                self.player_choose.num_of_points = 1
+                                self.board.draw_hexagon('player1', position=self.player_choose.hexagon_center, sel_hex=False)
+
+
+                        if self.board.hexagons[row][col]==self.player_choose:
+                            print('Выбор игрока')
+                            self.board.draw_hexagon(who, position=self.player_choose.hexagon_center, sel_hex=False)
+        if distance>=65:
+            print('Дистанция велика')
+            self.board.draw_hexagon(who, position=(self.hex_x, self.hex_y), sel_hex=False)
+
         for row in range(self.board.row_hex):
             for col in range(self.board.col_hex):
                 if self.board.hexagons[row][col] == False: continue
@@ -93,6 +161,8 @@ class Person():
                     self.board.hexagons[row][col].num_of_points=1
                     position = self.board.hexagons[row][col].hexagon_center
                     self.board.draw_hexagon(who, position)
+
+
 
     def phase_gain_influence_points(self, who) -> None:
         '''
@@ -198,3 +268,14 @@ class Person():
                     if (self.board.hexagons[row][col].hexagon_center[0]-20 <= position[0] <= self.board.hexagons[row][col].hexagon_center[0]+20) and \
                     (self.board.hexagons[row][col].hexagon_center[1]-20 <= position[1] <= self.board.hexagons[row][col].hexagon_center[1]+20):
                         return who == self.board.hexagons[row][col].who_owns
+
+    def my_hex_count(self):
+        player_hex = 0
+        for row in range(self.board.row_hex):
+            for col in range(self.board.col_hex):
+                if self.board.hexagons[row][col] == False:
+                    continue
+                else:
+                    if self.board.hexagons[row][col].who_owns == 'player1':
+                        player_hex += 1
+        return player_hex
