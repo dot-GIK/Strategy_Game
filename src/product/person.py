@@ -279,3 +279,15 @@ class Person():
                     if self.board.hexagons[row][col].who_owns == 'player1':
                         player_hex += 1
         return player_hex
+
+    def check_bot(self):
+        self.hex_bot_count=0
+        for row in range(self.board.row_hex):
+            for col in range(self.board.col_hex):
+                if self.board.hexagons[row][col] == False: continue
+                if self.board.hexagons[row][col].who_owns!='player1' and self.board.hexagons[row][col].who_owns!='none' and self.board.hexagons[row][col].num_of_points>=1:
+                    self.hex_bot_count += 1
+        if self.hex_bot_count >= 1:
+            return True
+        if self.hex_bot_count == 0:
+            return False

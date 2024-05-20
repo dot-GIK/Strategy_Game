@@ -1,6 +1,6 @@
 import pygame
 import os
-
+from .global_variables import whose_color
 from .board import Board
 
 class GameOverScreen:
@@ -21,7 +21,7 @@ class GameOverScreen:
 
     def update(self, winner):
             text="WINNER: " + winner
-            self.text2 = self.font_for_over.render(text, True, (255, 255, 255))
+            self.text2 = self.font_for_over.render(text, True, whose_color[winner])
             self.text2_rect = self.text2.get_rect(center=self.screen.get_rect().center)
             self.text2_overlay = pygame.Surface(self.text2.get_size(), pygame.SRCALPHA)
             self.text2_overlay.blit(self.text2, (0, 0))
